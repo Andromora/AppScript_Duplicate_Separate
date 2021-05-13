@@ -1,0 +1,79 @@
+/*
+Created by Andres Rojas
+
+
+Info and support:
+
+andresr@uber.com
+(+506) 8464 9606
+
+This code is for a free use.
+
+The code is devided in 2 sections.
+the first section will sort and separate all the duplicated info contained in the column E
+
+The secund one has a doube button function, within the first click it will delete all the remanent sheets (instead the first1).
+Within the secund click, it will clear all the content, leaving the file ready for the next raw information.
+
+
+*/
+function comparador() {
+  var app = SpreadsheetApp.getActiveSpreadsheet();
+  var amountPages = app.getNumSheets();
+  var thisPageName = "Duplicado" + amountPages;
+  var thisPage = app.getSheetByName(thisPageName).activate();
+  //thisPage.deleteRow(1);
+  var lastRowThisPage = thisPage.getLastRow();
+  thisPage.getRange(2, 1, lastRowThisPage, 8).sort(5);
+
+  for (var i = 1; i < lastRowThisPage; i++) {
+    var cantidadPag = app.getNumSheets();
+    var opt1 = thisPage.getRange(i, 5).getValue();
+    var opt2 = thisPage.getRange((i + 1), 5).getValue();
+    if (opt1 == opt2) {
+      if (cantidadPag == amountPages) {
+        opt1 = thisPage.getRange(i, 1, 1, 8).getValues();
+        var newPage = "Duplicado" + (cantidadPag + 1);
+        app.insertSheet(newPage);
+        app.getSheetByName(newPage).getRange(1, 1, 1, 8).setValues(opt1);
+        thisPage.deleteRow(i);
+        i--;
+        lastRowThisPage = thisPage.getLastRow();
+        cantidadPag++;
+      } else {
+        opt1 = thisPage.getRange(i, 1, 1, 8).getValues();
+        var lastActivePage = "Duplicado" + cantidadPag;
+        var lastActiveRow = app.getSheetByName(lastActivePage).getLastRow();
+        app.getSheetByName(lastActivePage).getRange((lastActiveRow + 1), 1, 1, 8).setValues(opt1);
+        thisPage.deleteRow(i);
+        i--;
+        lastRowThisPage = thisPage.getLastRow();
+      }
+    }
+  }
+  var newAmountPages = app.getNumSheets();
+  if (amountPages < newAmountPages) {
+    comparador();
+  }
+}
+
+
+function clearing() {
+  var app = SpreadsheetApp.getActiveSpreadsheet();
+  var cantidadPag = app.getNumSheets();
+  if (cantidadPag > 1) {
+    for (var i = 1; i < cantidadPag; i++) {
+      var pageIndexName = app.getSheets()[1];
+      var sheetName = pageIndexName.getSheetName();
+      app.getSheetByName(sheetName).activate();
+      app.deleteActiveSheet();
+    }
+  } else {
+    var pag1 = app.getSheetByName("Duplicado1");
+    pag1.activate();
+    var lastRowP1 = pag1.getLastRow();
+    var p1Range = pag1.getRange(2, 1, lastRowP1, 8);
+    p1Range.clear();
+    //p1Range.setBorder(false,false,false,false,false,false,"FFFFFF",true);
+  }
+}
